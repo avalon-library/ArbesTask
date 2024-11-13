@@ -10,10 +10,10 @@ import java.util.*;
 
 public class TelephoneBillCalculatorImpl implements TelephoneBillCalculator {
 
-    class PhoneCall {
-        private String number;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+    static class PhoneCall {
+        private final String number;
+        private final LocalDateTime startTime;
+        private final LocalDateTime endTime;
         private BigDecimal totalCost;
 
         public PhoneCall(String number, LocalDateTime startTime, LocalDateTime endTime) {
@@ -59,6 +59,7 @@ public class TelephoneBillCalculatorImpl implements TelephoneBillCalculator {
         String[] logLines = phoneLog.split(System.lineSeparator());
         List<PhoneCall> phoneCalls = new ArrayList<>();
 
+        // Calculate tarif/off-tariff calling times
         for (String line : logLines) {
             String[] logParts = line.split(",");
             PhoneCall phoneCall = new PhoneCall(logParts[0], LocalDateTime.parse(logParts[1], formatter), LocalDateTime.parse(logParts[2], formatter));
@@ -85,22 +86,24 @@ public class TelephoneBillCalculatorImpl implements TelephoneBillCalculator {
             phoneCalls.add(phoneCall);
         }
 
+        // Count total cost for each called number
         Map<String, BigDecimal> totalCostsByNumbers = new TreeMap<>();
-
         for (PhoneCall phoneCall : phoneCalls) {
             totalCostsByNumbers.put(
                     phoneCall.getNumber(), totalCostsByNumbers.containsKey(phoneCall.getNumber()) ? totalCostsByNumbers.get(phoneCall.getNumber()).add(phoneCall.getTotalCost()) : phoneCall.getTotalCost());
         }
 
+        // Get number wit greatest total cost of calls
         String freeCallsNumber = totalCostsByNumbers.entrySet().stream()
                 .max(Map.Entry.comparingByValue()) // Optional<Map.Entry<Integer, Integer>> - entry
                 .map(Map.Entry::getKey)            // Optional<Integer> - key
                 .orElseThrow();
 
+        // Exlcude the free calls number from list
         phoneCalls = phoneCalls.stream().filter(n -> !n.getNumber().equals(freeCallsNumber)).toList();
 
+        // count total cost to be returned
         BigDecimal totalCost = BigDecimal.ZERO;
-
         for (PhoneCall phoneCall : phoneCalls) {
             totalCost = totalCost.add(phoneCall.getTotalCost());
         }
