@@ -93,7 +93,7 @@ public class TelephoneBillCalculatorImpl implements TelephoneBillCalculator {
                     phoneCall.getNumber(), totalCostsByNumbers.containsKey(phoneCall.getNumber()) ? totalCostsByNumbers.get(phoneCall.getNumber()).add(phoneCall.getTotalCost()) : phoneCall.getTotalCost());
         }
 
-        // Get number wit greatest total cost of calls
+        // Get number with greatest total cost of calls
         String freeCallsNumber = totalCostsByNumbers.entrySet().stream()
                 .max(Map.Entry.comparingByValue()) // Optional<Map.Entry<Integer, Integer>> - entry
                 .map(Map.Entry::getKey)            // Optional<Integer> - key
